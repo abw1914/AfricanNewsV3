@@ -1,0 +1,138 @@
+package com.android.africannewsv3;
+
+import android.text.TextUtils;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.util.ArrayList;
+
+public class NetworkUtils {
+
+    private static final String LOG_TAG = NetworkUtils.class.getSimpleName();
+
+    public NetworkUtils() {
+
+    }
+
+    public static ArrayList<NewsData> fetchNewsData (String requestUrl) throws JSONException {
+        URL url = createUrl(requestUrl);
+        String jsonResponse = null;
+        try {
+            jsonResponse = makeHttpRequest(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ArrayList<NewsData> extractNewsData = extractDataFromJson(jsonResponse);
+        return extractNewsData;
+    }
+
+    public static URL createUrl(String stringUrl) {
+        URL url = null;
+        try {
+            url = new URL(stringUrl);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+    public static String makeHttpRequest (URL requestUrl) throws IOException {
+        String jsonResponse = "";
+        if(requestUrl == null) {
+            return jsonResponse;
+        }
+        HttpURLConnection httpURLConnection = null;
+        InputStream inputStream = null;
+        try {
+            httpURLConnection = (HttpURLConnection) requestUrl.openConnection();
+            httpURLConnection.setReadTimeout(10000);
+            httpURLConnection.setConnectTimeout(15000);
+            httpURLConnection.setRequestMethod("GET");
+            httpURLConnection.connect();
+
+            if(httpURLConnection.getResponseCode() == 200) {
+                inputStream = httpURLConnection.getInputStream();
+                jsonResponse = convertStreamToString(inputStream);
+            }
+        } catch (MalformedURLException e) {
+            Log.e(LOG_TAG, "Malformed URL " + e.getMessage());
+        } catch (ProtocolException e) {
+            Log.e(LOG_TAG, "Protocal Exception: " + e.getMessage());
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "IO Exception: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "General Exception: " + e.getMessage());
+        }
+        return jsonResponse;
+    }
+
+    public static String convertStreamToString(InputStream inputStream) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder stringBuilder = new StringBuilder();
+        String line;
+        try {
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line).append('\n');
+            }
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "IO Exception" + e.getMessage());
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                Log.e(LOG_TAG, " IO Excpetion closing the Input Stream" + e.getMessage());
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    public static ArrayList<NewsData> extractDataFromJson (String newsDataJson) throws JSONException {
+         String webTitle;
+         String sectionName;
+         String articleDate;
+         String authorName;
+         String webUrl;
+
+         if(TextUtils.isEmpty(newsDataJson)) {
+             return null;
+         }
+         ArrayList<NewsData> newsDataArrayList = new ArrayList<>();
+         try {
+             JSONObject baseJsonResponse = new JSONObject(newsDataJson);
+             JSONObject newsResults = baseJsonResponse.getJSONObject("response");
+             JSONArray currentResultsArray  = newsResults.getJSONArray("results");
+             for (int i = 0; i < currentResultsArray.length(); i++) {
+                 JSONObject currentArticle = currentResultsArray.getJSONObject(i);
+                webTitle = currentArticle.getString("webTitle");
+                sectionName = currentArticle.getString("sectionName");
+                articleDate = currentArticle.getString("articleDate");
+                webUrl = currentArticle.getString("webUrl");
+
+                JSONArray authorArray = currentArticle.getJSONArray("tags");
+                if(authorArray.length() > 0) {
+                    JSONObject authorFullName = authorArray.getJSONObject(0);
+                    authorName = authorFullName.getString("webTitle");
+
+                    NewsData newsData = new NewsData(webTitle, sectionName, articleDate, authorName, webUrl);
+                    newsDataArrayList.add(newsData);
+                }
+             }
+         } catch (JSONException e) {
+             Log.e(LOG_TAG, "Parsing JSON Problem " + e.getMessage());
+         }
+         return newsDataArrayList;
+
+
+    }
+}
