@@ -12,33 +12,33 @@ import java.util.ArrayList;
 
 public class NewsLoader extends AsyncTaskLoader<ArrayList<NewsData>> {
 
-    public static final String NEWS_URL = "https://content.guardianapis.com/search?from-date=2016-01-01&to-date=2018-12-12&q=Africa&api-key=9998be71-d068-4976-b2a1-c69bcc6ed458&show-tags=contributor&page-size=50";
+    //public static final String NEWS_URL = "https://content.guardianapis.com/search?from-date=2016-01-01&to-date=2018-12-12&q=Africa&api-key=9998be71-d068-4976-b2a1-c69bcc6ed458&show-tags=contributor&page-size=50";
+    private String mUrl;
 
-
-    public NewsLoader(Context context) {
+    public NewsLoader(Context context, String url) {
         super(context);
+        mUrl = url;
     }
 
+
+
     @Override
-    protected void onForceLoad() {
-        super.onForceLoad();
+    protected void onStartLoading() {
+        forceLoad();
     }
 
     @Override
 
     public ArrayList<NewsData> loadInBackground() {
+        if(mUrl == null) {
+            return null;
+        }
         ArrayList<NewsData> newsDataArrayList = null;
         try {
-            NetworkUtils.fetchNewsData(NEWS_URL);
-            URL url = NetworkUtils.createUrl(NEWS_URL);
-            String jsonResponse = NetworkUtils.makeHttpRequest(url);
-            newsDataArrayList = NetworkUtils.extractDataFromJson(jsonResponse);
-        } catch (IOException e) {
-            e.printStackTrace();
+            newsDataArrayList = NetworkUtils.fetchNewsData(mUrl);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         return newsDataArrayList;
     }
 }
