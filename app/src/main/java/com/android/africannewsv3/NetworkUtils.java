@@ -98,34 +98,41 @@ public class NetworkUtils {
     }
 
     public static ArrayList<NewsData> extractDataFromJson (String newsDataJson) throws JSONException {
-         String webTitle;
-         String sectionName;
-         String articleDate;
-         String authorName;
-         String webUrl;
+        String title;
+        String articleId;
+        String date;
+        String urlSource;
 
          if(TextUtils.isEmpty(newsDataJson)) {
              return null;
          }
          ArrayList<NewsData> newsDataArrayList = new ArrayList<>();
-         try {
-             JSONObject baseJsonResponse = new JSONObject(newsDataJson);
-             JSONObject newsResults = baseJsonResponse.getJSONObject("response");
-             JSONArray currentResultsArray  = newsResults.getJSONArray("results");
-             for (int i = 0; i < currentResultsArray.length(); i++) {
-                 JSONObject currentArticle = currentResultsArray.getJSONObject(i);
-                webTitle = currentArticle.getString("webTitle");
-                sectionName = currentArticle.getString("sectionName");
-                articleDate = currentArticle.getString("articleDate");
-                webUrl = currentArticle.getString("webUrl");
+             try {
+                 JSONObject baseJsonResponse = new JSONObject(newsDataJson);
+                 JSONObject newsResults = baseJsonResponse.getJSONObject("response");
+                 JSONArray currentResultsArray = newsResults.getJSONArray("results");
 
-                JSONArray authorArray = currentArticle.getJSONArray("tags");
-                if(authorArray.length() > 0) {
-                    JSONObject authorFullName = authorArray.getJSONObject(0);
-                    authorName = authorFullName.getString("webTitle");
+                 for (int i = 0; i < currentResultsArray.length(); i++) {
 
-                    NewsData newsData = new NewsData(webTitle, sectionName, articleDate, authorName, webUrl);
-                    newsDataArrayList.add(newsData);
+                     JSONObject currentArticle = currentResultsArray.getJSONObject(i);
+
+                     title = currentArticle.getString("webTitle");
+                     articleId = currentArticle.getString("id");
+                     date = currentArticle.getString("webPublicationDate");
+                     urlSource = currentArticle.getString("webUrl");
+                     /**
+                      * Note if article author is needed - need to write another JsonArray for the tags id
+                      */
+
+                     JSONArray authorArray = currentArticle.getJSONArray("tags");
+                     if (authorArray.length() > 0) {
+                         JSONObject authorFirstName = authorArray.getJSONObject(0);
+                         String authorFirst = authorFirstName.getString("firstName");
+                         String authorLast = authorFirstName.getString("lastName");
+
+                         NewsData newsData = new NewsData(title, articleId, date, urlSource, authorFirst);
+                         newsDataArrayList.add(newsData);
+
                 }
              }
          } catch (JSONException e) {
