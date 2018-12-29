@@ -15,7 +15,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<NewsData>> {
+public class MainActivity extends AppCompatActivity implements LoaderCallbacks<ArrayList<NewsData>> {
     ArrayList<NewsData> newsDataArrayList;
     NewsLoader newsLoader;
 
@@ -24,15 +24,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     public static final String LOG_TOG = MainActivity.class.getSimpleName();
     public static final String NEWS_URL = "https://content.guardianapis.com/search?from-date=2016-01-01&to-date=2018-12-12&q=Africa&api-key=9998be71-d068-4976-b2a1-c69bcc6ed458&show-tags=contributor&page-size=50";
-    LoaderCallbacks<ArrayList<NewsData>> callbacks = MainActivity.this;
+
     Bundle bundleForLoader = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        getSupportLoaderManager().initLoader(LOADER_ID, bundleForLoader, MainActivity.this);
+        LoaderCallbacks<ArrayList<NewsData>> callbacks = MainActivity.this;
+        getSupportLoaderManager().initLoader(LOADER_ID, bundleForLoader, callbacks);
 
     }
 
