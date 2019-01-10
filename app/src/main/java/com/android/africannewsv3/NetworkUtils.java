@@ -101,7 +101,7 @@ public class NetworkUtils {
         String title;
         String articleId;
         String date;
-        String urlSource;
+        String webUrl;
 
          if(TextUtils.isEmpty(newsDataJson)) {
              return null;
@@ -119,7 +119,7 @@ public class NetworkUtils {
                      title = currentArticle.getString("webTitle");
                      articleId = currentArticle.getString("id");
                      date = currentArticle.getString("webPublicationDate");
-                     urlSource = currentArticle.getString("webUrl");
+                     webUrl = currentArticle.getString("webUrl");
                      /**
                       * Note if article author is needed - need to write another JsonArray for the tags id
                       */
@@ -128,9 +128,9 @@ public class NetworkUtils {
                      if (authorArray.length() > 0) {
                          JSONObject authorFirstName = authorArray.getJSONObject(0);
                          String authorFirst = authorFirstName.getString("firstName");
-                         String authorLast = authorFirstName.getString("lastName");
+                         //String authorLast = authorFirstName.getString("lastName");
 
-                         NewsData newsData = new NewsData(title, articleId, date, urlSource, authorFirst);
+                         NewsData newsData = new NewsData(title, articleId, date, authorFirst, webUrl);
                          newsDataArrayList.add(newsData);
 
                 }
