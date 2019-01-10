@@ -35,15 +35,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private TextView mEmptyTextView;
 
     public static final String LOG_TOG = MainActivity.class.getSimpleName();
-    public static final String NEWS_URL = "https://content.guardianapis.com/search?from-date=2016-01-01&to-date=2018-12-12&q=Africa&api-key=9998be71-d068-4976-b2a1-c69bcc6ed458&show-tags=contributor&page-size=50";
-    // public static final String NEWS_URL_URI = "https://content.guardianapis.com/search?api-key=9998be71-d068-4976-b2a1-c69bcc6ed458&show-fields=byline";
-
     public static final String API_LABEL = "&api-key=";
     public static String BASE_NEWS_SEARCH_URL = "https://content.guardianapis.com/search?q=";
-    public static final String GURADIAN_API_KEY = "9998be71-d068-4976-b2a1-c69bcc6ed458";
+    public static final String GUARDIAN_API_KEY = "9998be71-d068-4976-b2a1-c69bcc6ed458&show-tags=contributor&page-size=15";
     public String Africa = "Africa";
     public String Caribbean = "Caribbean";
     public String Brazil = "Brazil";
+
+    public String BASE_NEWS_SEARCH = BASE_NEWS_SEARCH_URL + Africa + API_LABEL + GUARDIAN_API_KEY;
 
 
     /**
@@ -93,9 +92,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public Loader<ArrayList<NewsData>> onCreateLoader(int i, Bundle bundle) {
         Log.e(LOG_TOG, "Loader OnCreateLoader method call... ");
-
-        return new NewsLoader(MainActivity.this, NEWS_URL);
-
+        return new NewsLoader(MainActivity.this, BASE_NEWS_SEARCH);
     }
 
 
@@ -150,20 +147,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return connectivityManager.getActiveNetworkInfo() != null;
     }
 
-    public void onSharedPreferenceChange(SharedPreferences sharedPreferences, String key) {
-        if ((key.equals(getString(R.string.settings_order_by_key)))) {
-            newsAdapter.clear();
-        }
-        mEmptyTextView.setVisibility(View.GONE);
-
-        View loadingIndicator = findViewById(R.id.loadingIndicator);
-        loadingIndicator.setVisibility(View.VISIBLE);
-
-        getSupportLoaderManager().initLoader(LOADER_ID, null, MainActivity.this);
-
-
-    }
-
     private void reload() {
         getSupportLoaderManager().restartLoader(LOADER_ID, null, MainActivity.this);
     }
@@ -176,31 +159,26 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.African_selected:
-                BASE_NEWS_SEARCH_URL = BASE_NEWS_SEARCH_URL + Africa + API_LABEL + GURADIAN_API_KEY;
-                new NewsLoader(this, BASE_NEWS_SEARCH_URL);
+                BASE_NEWS_SEARCH = BASE_NEWS_SEARCH_URL + Africa + API_LABEL + GUARDIAN_API_KEY;
+                new NewsLoader(this, BASE_NEWS_SEARCH);
                 reload();
                 return true;
             case R.id.Caribbean_selected:
-                BASE_NEWS_SEARCH_URL = BASE_NEWS_SEARCH_URL + Caribbean + API_LABEL + GURADIAN_API_KEY;
-                new NewsLoader(this, BASE_NEWS_SEARCH_URL);
+                BASE_NEWS_SEARCH = BASE_NEWS_SEARCH_URL + Caribbean + API_LABEL + GUARDIAN_API_KEY;
+                new NewsLoader(this, BASE_NEWS_SEARCH);
+                isNetworkConnected();
                 reload();
                 return true;
             case R.id.Brazil_selected:
-                BASE_NEWS_SEARCH_URL = BASE_NEWS_SEARCH_URL + Brazil + API_LABEL + GURADIAN_API_KEY;
-                new NewsLoader(this, BASE_NEWS_SEARCH_URL);
+                BASE_NEWS_SEARCH = BASE_NEWS_SEARCH_URL + Brazil + API_LABEL + GUARDIAN_API_KEY;
+                new NewsLoader(this, BASE_NEWS_SEARCH);
+                isNetworkConnected();
                 reload();
                 return true;
         }
         return false;
 
 
-        /* int id = menuItem.getItemId();
-        if (id == R.id.action_settings) {
-            Intent settingIntent = new Intent(this, SettingsActivity.class);
-            startActivity(settingIntent);
-            return true;
-        }
-        return super.onOptionsItemSelected(menuItem);*/
     }
 }
 

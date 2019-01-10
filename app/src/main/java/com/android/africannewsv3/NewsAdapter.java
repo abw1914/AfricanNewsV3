@@ -52,8 +52,3 @@ public class NewsAdapter extends ArrayAdapter<NewsData>{
 }
 
 
-    /* String webTitle;
-     String sectionName;
-     String articleDate;
-     String authorName;
-     String webUrl;*/
